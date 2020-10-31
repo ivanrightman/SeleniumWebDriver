@@ -47,7 +47,7 @@ public class TestBase {
 
         driver = new ChromeDriver();
         tlDriver.set(driver);
-        wait = new WebDriverWait(driver, 1);
+        wait = new WebDriverWait(driver, 10);
 
         Runtime.getRuntime().addShutdownHook(
                 new Thread(() -> { driver.quit(); driver = null; }));
@@ -75,8 +75,15 @@ public class TestBase {
 
     public List<WebElement> getElsByThreeStep(By locatorOne, By locatorTwo, By locatorThree) {
         WebElement elem2 = driver.findElement(locatorOne);
-        WebElement elemInNestMenu = elem2.findElement(locatorTwo);
-        return elemInNestMenu.findElements(locatorThree);
+        WebElement elemInElem = elem2.findElement(locatorTwo);
+        return elemInElem.findElements(locatorThree);
+    }
+
+    public void mainPage() {
+        if (areElementsPresent(driver, By.id("slider"))) {
+            return;
+        }
+        driver.get("http://localhost/litecart/en/");
     }
 
     @After
