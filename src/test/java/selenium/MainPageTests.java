@@ -22,6 +22,7 @@ public class MainPageTests extends TestBase {
             ducksCount += products.size();
             for (WebElement product : products) {
                 List<WebElement> stickers = product.findElements(By.cssSelector("[class *= sticker]"));
+                assertThat(stickers.size(), is(1));
                 if (stickers.size() == 1) {
                     stickerCount++;
                 }
