@@ -18,7 +18,7 @@ public class MainPageTests extends TestBase {
         int stickerCount = 0;
         List<WebElement> elems = getElsByTwoStep(By.cssSelector("div.middle > div.content"), By.className("box"));
         for (WebElement elem : elems) {
-            List<WebElement> products = elem.findElements(By.tagName("li"));
+            List<WebElement> products = elem.findElements(By.tagName("li.product"));
             ducksCount += products.size();
             for (WebElement product : products) {
                 List<WebElement> stickers = product.findElements(By.cssSelector("[class *= sticker]"));
