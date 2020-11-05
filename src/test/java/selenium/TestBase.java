@@ -4,6 +4,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.util.List;
@@ -45,7 +47,9 @@ public class TestBase {
             return;
         } */
 
-        driver = new ChromeDriver();
+        //driver = new ChromeDriver();
+        //driver = new FirefoxDriver();
+        driver = new InternetExplorerDriver();
         tlDriver.set(driver);
         wait = new WebDriverWait(driver, 10);
 
@@ -84,6 +88,14 @@ public class TestBase {
             return;
         }
         driver.get("http://localhost/litecart/en/");
+    }
+
+    public boolean isStringExist(String string, String target) {
+        if (string.contains(target)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     @After
