@@ -47,9 +47,9 @@ public class TestBase {
             return;
         } */
 
-        //driver = new ChromeDriver();
+        driver = new ChromeDriver();
         //driver = new FirefoxDriver();
-        driver = new InternetExplorerDriver();
+        //driver = new InternetExplorerDriver();
         tlDriver.set(driver);
         wait = new WebDriverWait(driver, 10);
 
@@ -92,6 +92,28 @@ public class TestBase {
 
     public boolean isStringExist(String string, String target) {
         if (string.contains(target)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public String colorIs(String string) {
+        String[] stringSplit = string.substring(5, string.length() - 1).split(", ");
+        String color = "";
+        if (Integer.parseInt(stringSplit[0]) == Integer.parseInt(stringSplit[1]) &&
+                Integer.parseInt(stringSplit[1]) == Integer.parseInt(stringSplit[2])) {
+            color = "gray";
+        } else if (Integer.parseInt(stringSplit[1]) == 0 &&
+                    Integer.parseInt(stringSplit[2]) == 0) {
+            color = "red";
+        }
+        return color;
+    }
+
+    public boolean isSizeBigger(Dimension one, Dimension two) {
+        if (one.getHeight() > two.getHeight() &&
+            one.getWidth() > two.getWidth()) {
             return true;
         } else {
             return false;

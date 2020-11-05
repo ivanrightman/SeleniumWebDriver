@@ -2,6 +2,7 @@ package selenium;
 
 import org.junit.Test;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebElement;
 import java.util.List;
 
@@ -39,30 +40,34 @@ public class MainPageTests extends TestBase {
         String mpPrice = product.findElement(By.className("regular-price")).getText();
         String mpSalePrice = product.findElement(By.className("campaign-price")).getText();
         String mpPriceStyle = product.findElement(By.className("regular-price")).getCssValue("text-decoration"); // text-decoration
-        String mpSalePriceStyle = product.findElement(By.className("campaign-price")).getCssValue("color");
-        if (isStringExist(mpPriceStyle, "line-through")) {
+        String mpPriceColor = product.findElement(By.className("regular-price")).getCssValue("color");
+        String mpSalePriceStyle = product.findElement(By.className("campaign-price")).getTagName();
+        String mpSalePriceColor = product.findElement(By.className("campaign-price")).getCssValue("color");
+        Dimension mpPriceSize = product.findElement(By.className("regular-price")).getSize();
+        Dimension mpSalePriceSize = product.findElement(By.className("campaign-price")).getSize();
 
-        }
-        /*chrome
-        mpPriceStyle = "line-through solid rgb(119, 119, 119)"
-        mpSalePriceStyle = "none solid rgb(204, 0, 0)" - проверить наличие тега strong
-         */
-        /*firefox
-         mpPriceStyle = "line-through rgb(119, 119, 119)"
-         mpSalePriceStyle = "rgb(204, 0, 0)" - проверить наличие тега strong
-         */
-        /*IE
-        mpPriceStyle = "line-through" - (color - rgba(119, 119, 119, 1) )
-        mpSalePriceStyle = "none" (color - rgba(204, 0, 0, 1) ) - проверить наличие тега strong
-        */
+        assertThat(colorIs(mpPriceColor), is("gray"));
+        assertThat(colorIs(mpSalePriceColor), is("red"));
+        assertThat(isSizeBigger(mpSalePriceSize, mpPriceSize), is(true));
+
         product.click();
         String ppName = driver.findElement(By.cssSelector("h1.title")).getText();
         String ppPrice = driver.findElement(By.className("regular-price")).getText();
         String ppSalePrice = driver.findElement(By.className("campaign-price")).getText();
         String ppPriceStyle = driver.findElement(By.className("regular-price")).getCssValue("text-decoration"); // text-decoration
-        String ppSalePriceStyle = driver.findElement(By.className("campaign-price")).getCssValue("color");
+        String ppPriceColor = driver.findElement(By.className("regular-price")).getCssValue("color");
+        String ppSalePriceStyle = driver.findElement(By.className("campaign-price")).getTagName();
+        String ppSalePriceColor = driver.findElement(By.className("campaign-price")).getCssValue("color");
+        Dimension ppPriceSize = driver.findElement(By.className("regular-price")).getSize();
+        Dimension ppSalePriceSize = driver.findElement(By.className("campaign-price")).getSize();
+
         assertThat(mpName, is(ppName));
         assertThat(mpPrice, is(ppPrice));
         assertThat(mpSalePrice, is(ppSalePrice));
+        assertThat(isStringExist(mpPriceStyle, "line-through"), is(isStringExist(ppPriceStyle, "line-through")));
+        assertThat(colorIs(ppPriceColor), is("gray"));
+        assertThat(mpSalePriceStyle,is(ppSalePriceStyle));
+        assertThat(colorIs(ppSalePriceColor), is("red"));
+        assertThat(isSizeBigger(ppSalePriceSize,ppPriceSize), is(true));
     }
 }
