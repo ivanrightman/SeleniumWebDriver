@@ -43,8 +43,8 @@ public class MainPageTests extends TestBase {
         String mpPriceColor = product.findElement(By.className("regular-price")).getCssValue("color");
         String mpSalePriceStyle = product.findElement(By.className("campaign-price")).getTagName();
         String mpSalePriceColor = product.findElement(By.className("campaign-price")).getCssValue("color");
-        Dimension mpPriceSize = product.findElement(By.className("regular-price")).getSize();
-        Dimension mpSalePriceSize = product.findElement(By.className("campaign-price")).getSize();
+        String mpPriceSize = product.findElement(By.className("regular-price")).getCssValue("font-size");
+        String mpSalePriceSize = product.findElement(By.className("campaign-price")).getCssValue("font-size");
 
         assertThat(colorIs(mpPriceColor), is("gray"));
         assertThat(colorIs(mpSalePriceColor), is("red"));
@@ -58,8 +58,8 @@ public class MainPageTests extends TestBase {
         String ppPriceColor = driver.findElement(By.className("regular-price")).getCssValue("color");
         String ppSalePriceStyle = driver.findElement(By.className("campaign-price")).getTagName();
         String ppSalePriceColor = driver.findElement(By.className("campaign-price")).getCssValue("color");
-        Dimension ppPriceSize = driver.findElement(By.className("regular-price")).getSize();
-        Dimension ppSalePriceSize = driver.findElement(By.className("campaign-price")).getSize();
+        String ppPriceSize = driver.findElement(By.className("regular-price")).getCssValue("font-size");
+        String ppSalePriceSize = driver.findElement(By.className("campaign-price")).getCssValue("font-size");
 
         assertThat(mpName, is(ppName));
         assertThat(mpPrice, is(ppPrice));

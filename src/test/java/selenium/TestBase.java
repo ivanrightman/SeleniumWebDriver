@@ -111,9 +111,9 @@ public class TestBase {
         return color;
     }
 
-    public boolean isSizeBigger(Dimension one, Dimension two) {
-        if (one.getHeight() > two.getHeight() &&
-            one.getWidth() > two.getWidth()) {
+    public boolean isSizeBigger(String one, String two) {
+        int i = one.compareTo(two);
+        if (i > 0) {
             return true;
         } else {
             return false;
