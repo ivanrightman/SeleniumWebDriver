@@ -2,7 +2,6 @@ package selenium;
 
 import org.junit.Test;
 import org.openqa.selenium.By;
-import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebElement;
 import java.util.List;
 
@@ -69,5 +68,17 @@ public class MainPageTests extends TestBase {
         assertThat(mpSalePriceStyle,is(ppSalePriceStyle));
         assertThat(colorIs(ppSalePriceColor), is("red"));
         assertThat(isSizeBigger(ppSalePriceSize,ppPriceSize), is(true));
+    }
+
+    @Test
+    public void userRegTest() {
+        mainPage();
+        click(By.linkText("New customers click here"));
+        fillCreateAccount(inputStringGenerator());
+        click(By.cssSelector("button[name='create_account']"));
+        logout();
+        fillLoginForm();
+        click(By.cssSelector("button[name='login']"));
+        logout();
     }
 }

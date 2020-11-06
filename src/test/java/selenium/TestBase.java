@@ -9,6 +9,7 @@ import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 public class TestBase {
@@ -16,6 +17,8 @@ public class TestBase {
     public static ThreadLocal<WebDriver> tlDriver = new ThreadLocal<>();
     public WebDriver driver;
     public WebDriverWait wait;
+
+    private String random;
 
     @Before
     public void start() {
@@ -51,7 +54,7 @@ public class TestBase {
         //driver = new FirefoxDriver();
         //driver = new InternetExplorerDriver();
         tlDriver.set(driver);
-        wait = new WebDriverWait(driver, 10);
+        wait = new WebDriverWait(driver, 15);
 
         Runtime.getRuntime().addShutdownHook(
                 new Thread(() -> { driver.quit(); driver = null; }));
@@ -119,6 +122,72 @@ public class TestBase {
             return false;
         }
     }
+
+    public String inputStringGenerator() {
+        Random rm = new Random();
+        random = String.valueOf(rm.nextInt() + System.currentTimeMillis());
+        return random;
+    }
+
+    protected void click(By locator) {
+        driver.findElement(locator).click();
+    }
+
+    protected void type(By locator, String text) {
+        click(locator);
+        if (text != null){
+            String existingText = driver.findElement(locator).getAttribute("value");
+            if (! text.equals(existingText)) {
+                driver.findElement(locator).clear();
+                driver.findElement(locator).sendKeys(text);
+            }
+        }
+    }
+
+    public void fillCreateAccount(String input) {
+        click(By.cssSelector("input[name=tax_id]"));
+        type(By.cssSelector("input[name=firstname]"),"Vasya" + input);
+        type(By.cssSelector("input[name=lastname]"), "Vaskin" + input);
+        type(By.cssSelector("input[name=address1]"), "ulitsa" + input);
+        type(By.cssSelector("input[name=postcode]"), "99150");
+        type(By.cssSelector("input[name=city]"), "City" + input);
+        selectItemByTwoSteps(By.className("select2-selection"), By.className("select2-results__options"), "United States");
+        type(By.cssSelector("input[name=email]"), "mail" + input + "@mail.com");
+        type(By.cssSelector("input[name=phone]"), "+1" + input);
+        type(By.cssSelector("input[name=password]"), input);
+        type(By.cssSelector("input[name=confirmed_password]"), input);
+    }
+
+    public void fillLoginForm() {
+        click(By.cssSelector("input[name=email]"));
+        type(By.cssSelector("input[name=email]"), "mail" + random + "@mail.com");
+        type(By.cssSelector("input[name=password]"), random);
+    }
+
+    public void selectItemByTwoSteps(By clickLocator, By selectLocator, String select) {
+        click(clickLocator);
+        List<WebElement> itemsList = driver.findElements(selectLocator);
+        for (WebElement item : itemsList) {
+            item.findElement(By.xpath("./li[contains(text(),'" + select +"')]")).click();
+        }
+    }
+
+    public void logout() {
+        try {
+            Thread.sleep(3*1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        click(By.linkText("Logout"));
+    }
+
+    /*public void makeVisible(WebElement item) {
+        String s = item.getAttribute("outerHTML");
+        if (isStringExist(s, "hidden")) {
+            ((JavascriptExecutor) driver)
+                    .executeScript("arguments[0].type=visible", item);
+        }
+    }*/
 
     @After
     public void stop() {
