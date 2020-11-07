@@ -8,6 +8,8 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -145,17 +147,17 @@ public class TestBase {
     }
 
     public void fillCreateAccount(String input) {
-        click(By.cssSelector("input[name=tax_id]"));
-        type(By.cssSelector("input[name=firstname]"),"Vasya" + input);
-        type(By.cssSelector("input[name=lastname]"), "Vaskin" + input);
-        type(By.cssSelector("input[name=address1]"), "ulitsa" + input);
-        type(By.cssSelector("input[name=postcode]"), "99150");
-        type(By.cssSelector("input[name=city]"), "City" + input);
+        click(By.cssSelector("input[name=\"tax_id\"]"));
+        type(By.cssSelector("input[name=\"firstname\"]"),"Vasya" + input);
+        type(By.cssSelector("input[name=\"lastname\"]"), "Vaskin" + input);
+        type(By.cssSelector("input[name=\"address1\"]"), "ulitsa" + input);
+        type(By.cssSelector("input[name=\"postcode\"]"), "99150");
+        type(By.cssSelector("input[name=\"city\"]"), "City" + input);
         selectItemByTwoSteps(By.className("select2-selection"), By.className("select2-results__options"), "United States");
-        type(By.cssSelector("input[name=email]"), "mail" + input + "@mail.com");
-        type(By.cssSelector("input[name=phone]"), "+1" + input);
-        type(By.cssSelector("input[name=password]"), input);
-        type(By.cssSelector("input[name=confirmed_password]"), input);
+        type(By.cssSelector("input[name=\"email\"]"), "mail" + input + "@mail.com");
+        type(By.cssSelector("input[name=\"phone\"]"), "+1" + input);
+        type(By.cssSelector("input[name=\"password\"]"), input);
+        type(By.cssSelector("input[name=\"confirmed_password\"]"), input);
     }
 
     public void fillLoginForm() {
@@ -164,20 +166,16 @@ public class TestBase {
         type(By.cssSelector("input[name=password]"), random);
     }
 
-    public void selectItemByTwoSteps(By clickLocator, By selectLocator, String select) {
-        click(clickLocator);
-        List<WebElement> itemsList = driver.findElements(selectLocator);
+    public void selectItemByTwoSteps(By locatorOne, By LocatorTwo, String select) {
+        click(locatorOne);
+        List<WebElement> itemsList = driver.findElements(LocatorTwo);
         for (WebElement item : itemsList) {
             item.findElement(By.xpath("./li[contains(text(),'" + select +"')]")).click();
         }
     }
 
     public void logout() {
-        try {
-            Thread.sleep(3*1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        pause();
         click(By.linkText("Logout"));
     }
 
@@ -188,6 +186,75 @@ public class TestBase {
                     .executeScript("arguments[0].type=visible", item);
         }
     }*/
+
+    public void fillProductGeneral(String input) {
+        pause();
+        click(By.cssSelector("input[name=status]"));
+        type(By.cssSelector("input[name=\"name[en]\"]"), "Gold Duck" + input);
+        type(By.cssSelector("input[name=\"code\"]"), input);
+        click(By.cssSelector("input[name=\"categories[]\"]"));
+        click(By.cssSelector("input[data-name=\"Rubber Ducks\"]"));
+        clickProductGroupsCheckBox(2);
+        type(By.cssSelector("input[name=\"quantity\"]"), "1");
+        attach(By.cssSelector("input[name=\"new_images[]\"]"), new File("src/test/resources/photo.png"));
+        type(By.cssSelector("input[name=\"date_valid_from\"]"), "10.10.2020");
+    }
+
+    public void clickProductGroupsCheckBox(int checkBoxIndex) {
+        List<WebElement> rows = getElsByTwoStep(By.xpath("//strong[contains(text(), 'Gender')]/../../.."), By.tagName("tr"));
+        List<WebElement> tdToClick = new ArrayList<>();
+        for (int i = 0; i < rows.size(); i++) {
+            if (i == 0) {
+            } else {
+                WebElement el = rows.get(i).findElement(By.cssSelector("input[type=\"checkbox\"]"));
+                tdToClick.add(el);
+            }
+        }
+        try {
+            tdToClick.get(checkBoxIndex).click();
+        } catch (IndexOutOfBoundsException ex) {
+            tdToClick.get(0).click();
+        }
+    }
+
+    public void attach (By locator, File file) {
+        if (file != null){
+            driver.findElement(locator).sendKeys(file.getAbsolutePath());
+        }
+    }
+
+    public void fillProductInformation(String input) {
+        click(By.linkText("Information"));
+        pause();
+        click(By.cssSelector("select[name=\"manufacturer_id\"]"));
+        click(By.xpath("//option[contains(text(),'ACME Corp.')]"));
+        type(By.cssSelector("input[name=\"keywords\"]"), input);
+        type(By.cssSelector("input[name=\"short_description[en]\"]"), input);
+        type(By.className("trumbowyg-editor"), input);
+        type(By.cssSelector("input[name=\"head_title[en]\"]"), input);
+        type(By.cssSelector("input[name=\"meta_description[en]\"]"), input);
+    }
+
+    public void fillProductPrices() {
+        click(By.linkText("Prices"));
+        pause();
+        type(By.cssSelector("input[name=\"purchase_price\"]"), "10");
+        click(By.cssSelector("select[name=\"purchase_price_currency_code\"]"));
+        click(By.xpath("//option[contains(text(),'US Dollars')]"));
+        type(By.cssSelector("input[name=\"gross_prices[USD]\"]"), "20");
+    }
+
+    public boolean isProductExist() {
+        return isElementPresent(driver, By.linkText("Gold Duck" + random));
+    }
+
+    public void pause() {
+        try {
+            Thread.sleep(2*1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 
     @After
     public void stop() {

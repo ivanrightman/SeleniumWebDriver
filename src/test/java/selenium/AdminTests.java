@@ -113,4 +113,16 @@ public class AdminTests extends TestBase {
             driver.get("http://localhost/litecart/admin/?app=geo_zones&doc=geo_zones");
         }
     }
+
+    @Test
+    public void addNewProductTest() {
+        adminLoginTest();
+        driver.get("http://localhost/litecart/admin/?app=catalog&doc=catalog");
+        click(By.xpath("//a[contains(text(), ' Add New Product')]"));
+        fillProductGeneral(inputStringGenerator());
+        fillProductInformation(inputStringGenerator());
+        fillProductPrices();
+        click(By.cssSelector("button[name=\"save\"]"));
+        assertThat(isProductExist(), is(true));
+    }
 }
