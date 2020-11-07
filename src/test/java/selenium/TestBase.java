@@ -117,8 +117,11 @@ public class TestBase {
     }
 
     public boolean isSizeBigger(String one, String two) {
-        int i = one.compareTo(two);
-        if (i > 0) {
+        String[] fromOne = one.split("px");
+        String[] fromTwo = two.split("px");
+        double ione = Double.parseDouble(fromOne[0]);
+        double itwo = Double.parseDouble(fromTwo[0]);
+        if (ione > itwo) {
             return true;
         } else {
             return false;
