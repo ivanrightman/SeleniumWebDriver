@@ -1,11 +1,13 @@
 package selenium;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.ie.InternetExplorerDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.io.File;
@@ -65,7 +67,7 @@ public class TestBase {
     boolean isElementPresent(WebDriver driver, By locator) {
         try {
             driver.manage().timeouts().implicitlyWait(1, TimeUnit.SECONDS);
-            //driver.findElement(locator);
+            driver.findElement(locator);
             return true;
         } catch (NoSuchElementException ex) {
             return false;
@@ -257,6 +259,47 @@ public class TestBase {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    public void addFirstProductFromList(By locator) {
+        List<WebElement> elems = getElsByTwoStep(By.cssSelector("div.middle > div.content"), locator);
+        elems.get(0).findElement(By.cssSelector("li:first-child")).click();
+        List<WebElement> elQuantity = getElsByTwoStep(By.id("cart"), By.cssSelector("span[class=\"quantity\"]"));
+        String quantity = elQuantity.get(0).getAttribute("textContent");
+        if (isElementPresent(driver, By.cssSelector("select[name=\"options[Size]\"]"))) {
+            click(By.cssSelector("select[name=\"options[Size]\"]"));
+            click(By.cssSelector("option[value=\"Small\"]"));
+        }
+        click(By.cssSelector("button[name='add_cart_product']"));
+        wait.until(ExpectedConditions.attributeToBe(elQuantity.get(0), "textContent", strPlusInt(quantity, 1) ));
+        elQuantity = getElsByTwoStep(By.id("cart"), By.cssSelector("span[class=\"quantity\"]"));
+        String quantityAfter = elQuantity.get(0).getAttribute("textContent");
+        Assert.assertTrue(Integer.parseInt(quantityAfter) > Integer.parseInt(quantity));
+    }
+
+    public void removeProductFromCart() {
+        List<WebElement> shortcuts = getElsByTwoStep(By.id("box-checkout-cart"), By.className("shortcut"));
+        for (WebElement el : shortcuts) {
+            WebElement summary = driver.findElement(By.id("box-checkout-summary"));
+            List<WebElement> shortcutsCurrent = getElsByTwoStep(By.id("box-checkout-cart"), By.className("shortcut"));
+            if (shortcutsCurrent.size() > 0) {
+                shortcutsCurrent.get(0).click();
+            }
+            click(By.cssSelector("button[name=\"remove_cart_item\"]"));
+            wait.until(ExpectedConditions.stalenessOf(summary));
+        }
+    }
+
+    public String strPlusInt(String one, int two) {
+        int o = Integer.parseInt(one);
+        int r = o + two;
+        String result = Integer.toString(r);
+        return result;
+    }
+
+    public void checkout() {
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.linkText("Checkout »")));
+        click(By.linkText("Checkout »"));
     }
 
     @After

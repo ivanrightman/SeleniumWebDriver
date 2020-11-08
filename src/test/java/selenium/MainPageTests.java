@@ -81,4 +81,15 @@ public class MainPageTests extends TestBase {
         click(By.cssSelector("button[name='login']"));
         logout();
     }
+
+    @Test
+    public void productAddTest() {
+        for (int i = 0; i < 3; i++) {
+            mainPage();
+            addFirstProductFromList(By.id("box-most-popular"));
+        }
+        mainPage();
+        checkout();
+        removeProductFromCart();
+    }
 }
