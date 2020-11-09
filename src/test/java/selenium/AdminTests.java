@@ -7,6 +7,8 @@ import org.openqa.selenium.WebElement;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -124,5 +126,26 @@ public class AdminTests extends TestBase {
         fillProductPrices();
         click(By.cssSelector("button[name=\"save\"]"));
         assertThat(isProductExist(), is(true));
+    }
+
+    @Test
+    public void externalLinksInNewWindow() {
+        /*Конечно, можно просто убедиться в том, что у ссылки есть атрибут target="_blank".
+        Но в этом упражнении требуется именно кликнуть по ссылке,
+        чтобы она открылась в новом окне, потом переключиться в новое окно,
+        закрыть его, вернуться обратно, и повторить эти действия для всех таких ссылок.*/
+        adminLoginTest();
+        driver.get("http://localhost/litecart/admin/?app=countries&doc=countries");
+        click(By.cssSelector("a[title=\"Edit\"]"));
+        List<WebElement> external = driver.findElements(By.xpath("//a[.//i[@class='fa fa-external-link']]"));
+        for (WebElement link : external) {
+            String originalWindow = driver.getWindowHandle();
+            Set<String> existingWindows = driver.getWindowHandles();
+            link.click();
+            String newWindow = wait.until(anyWindowOtherThan(existingWindows));
+            driver.switchTo().window(newWindow);
+            driver.close();
+            driver.switchTo().window(originalWindow);
+        }
     }
 }
