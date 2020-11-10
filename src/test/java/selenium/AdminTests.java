@@ -3,6 +3,9 @@ package selenium;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.logging.LogEntry;
+import org.openqa.selenium.support.ui.ExpectedCondition;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -146,6 +149,25 @@ public class AdminTests extends TestBase {
             driver.switchTo().window(newWindow);
             driver.close();
             driver.switchTo().window(originalWindow);
+        }
+    }
+
+    @Test
+    public void ifProductPageInCatalogHasNoMessageInBrowser() {
+        adminLoginTest();
+        driver.get("http://localhost/litecart/admin/?app=catalog&doc=catalog&category_id=1");
+        List<WebElement> rows = getElsByTwoStep(By.id("content"), By.className("row"));
+        for (int i = 3; i < rows.size(); i++) {
+            List<WebElement> currentRows = getElsByTwoStep(By.id("content"), By.className("row"));
+            currentRows.get(i).findElement(By.xpath("./td[5]")).click();
+            WebElement btnCancel = driver.findElement(By.cssSelector("button[name=\"cancel\"]"));
+            wait.until(ExpectedConditions.elementToBeClickable(btnCancel));
+            /*wait.until(ExpectedConditions.attributeToBeNotEmpty(btnCancel,
+                    btnCancel.getAttribute("onclick")));*/
+            btnCancel.click();
+        }
+        for (LogEntry l : driver.manage().logs().get("browser").getAll()) {
+            System.out.println(l.getMessage());
         }
     }
 }

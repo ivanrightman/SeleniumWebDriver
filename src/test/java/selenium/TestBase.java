@@ -7,6 +7,9 @@ import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.ie.InternetExplorerDriver;
+import org.openqa.selenium.logging.LogEntries;
+import org.openqa.selenium.support.events.AbstractWebDriverEventListener;
+import org.openqa.selenium.support.events.EventFiringWebDriver;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -21,11 +24,37 @@ import java.util.concurrent.TimeUnit;
 
 public class TestBase {
 
-    public static ThreadLocal<WebDriver> tlDriver = new ThreadLocal<>();
-    public WebDriver driver;
+    public static ThreadLocal<EventFiringWebDriver> tlDriver = new ThreadLocal<>();
+    public EventFiringWebDriver driver;
     public WebDriverWait wait;
 
     private String random;
+    public static class MyListener extends AbstractWebDriverEventListener {
+        @Override
+        public void beforeFindBy(By by, WebElement element, WebDriver driver) {
+            System.out.println(by);
+        }
+
+        @Override
+        public void afterFindBy(By by, WebElement element, WebDriver driver) {
+            System.out.println(by +  " found");
+        }
+
+        @Override
+        public void onException(Throwable throwable, WebDriver driver) {
+            System.out.println(throwable);
+        }
+/*
+        public void beforeClickOn(WebElement element, WebDriver driver) {
+            System.out.println(element.getAttribute("value"));
+        }
+
+        public void afterClickOn(WebElement element, WebDriver driver) {
+            System.out.println(element.getAttribute("value") + " found");
+        }
+
+ */
+    }
 
     @Before
     public void start() {
@@ -57,10 +86,11 @@ public class TestBase {
             return;
         } */
 
-        driver = new ChromeDriver();
+        driver = new EventFiringWebDriver(new ChromeDriver());
         //driver = new FirefoxDriver();
         //driver = new InternetExplorerDriver();
         tlDriver.set(driver);
+        driver.register(new MyListener());
         wait = new WebDriverWait(driver, 15);
 
         Runtime.getRuntime().addShutdownHook(
@@ -69,7 +99,7 @@ public class TestBase {
 
     boolean isElementPresent(WebDriver driver, By locator) {
         try {
-            driver.manage().timeouts().implicitlyWait(1, TimeUnit.SECONDS);
+            driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
             driver.findElement(locator);
             return true;
         } catch (NoSuchElementException ex) {
