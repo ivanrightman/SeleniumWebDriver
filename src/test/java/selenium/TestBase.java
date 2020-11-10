@@ -8,6 +8,7 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.logging.LogEntries;
+import org.openqa.selenium.logging.LogEntry;
 import org.openqa.selenium.support.events.AbstractWebDriverEventListener;
 import org.openqa.selenium.support.events.EventFiringWebDriver;
 import org.openqa.selenium.support.ui.ExpectedCondition;
@@ -21,6 +22,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 
 public class TestBase {
 
@@ -32,17 +34,17 @@ public class TestBase {
     public static class MyListener extends AbstractWebDriverEventListener {
         @Override
         public void beforeFindBy(By by, WebElement element, WebDriver driver) {
-            System.out.println(by);
+            //System.out.println(by);
         }
 
         @Override
         public void afterFindBy(By by, WebElement element, WebDriver driver) {
-            System.out.println(by +  " found");
+            //System.out.println(by +  " found");
         }
 
         @Override
         public void onException(Throwable throwable, WebDriver driver) {
-            System.out.println(throwable);
+            //System.out.println(throwable);
         }
 /*
         public void beforeClickOn(WebElement element, WebDriver driver) {
@@ -343,6 +345,14 @@ public class TestBase {
                 return handles.size() > 0 ? handles.iterator().next() : null;
             }
         };
+    }
+
+    public List browserLogs() {
+        List log = new ArrayList();
+        for (LogEntry l : driver.manage().logs().get("browser").getAll()) {
+            log.add("[" + l.getTimestamp() + "] [" + l.getLevel() + "] " + l.getMessage());
+        }
+        return log;
     }
 
     @After
