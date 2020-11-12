@@ -1,65 +1,40 @@
 package selenium;
 
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.ie.InternetExplorerDriver;
-import org.openqa.selenium.logging.LogEntries;
 import org.openqa.selenium.logging.LogEntry;
 import org.openqa.selenium.support.events.AbstractWebDriverEventListener;
 import org.openqa.selenium.support.events.EventFiringWebDriver;
 import org.openqa.selenium.support.ui.ExpectedCondition;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import selenium.app.Application;
 
-import java.awt.*;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 
 public class TestBase {
+    public static ThreadLocal<EventFiringWebDriver> tlApp = new ThreadLocal<>();
+    public Application app;
 
-    public static ThreadLocal<EventFiringWebDriver> tlDriver = new ThreadLocal<>();
-    public EventFiringWebDriver driver;
-    public WebDriverWait wait;
 
     private String random;
-    public static class MyListener extends AbstractWebDriverEventListener {
-        @Override
-        public void beforeFindBy(By by, WebElement element, WebDriver driver) {
-            //System.out.println(by);
-        }
-
-        @Override
-        public void afterFindBy(By by, WebElement element, WebDriver driver) {
-            //System.out.println(by +  " found");
-        }
-
-        @Override
-        public void onException(Throwable throwable, WebDriver driver) {
-            //System.out.println(throwable);
-        }
-/*
-        public void beforeClickOn(WebElement element, WebDriver driver) {
-            System.out.println(element.getAttribute("value"));
-        }
-
-        public void afterClickOn(WebElement element, WebDriver driver) {
-            System.out.println(element.getAttribute("value") + " found");
-        }
-
- */
-    }
 
     @Before
     public void start() {
+
+        tlApp.set(app.driver);
+        app.driver.register(new TestBase.MyListener());
+
+
+        Runtime.getRuntime().addShutdownHook(
+                new Thread(() -> { app.driver.quit(); app.driver = null; }));
+    }
         /*
         //Задание 4. Научитесь запускать разные браузеры
         driver = new FirefoxDriver();
@@ -88,17 +63,33 @@ public class TestBase {
             return;
         } */
 
-        driver = new EventFiringWebDriver(new ChromeDriver());
-        //driver = new FirefoxDriver();
-        //driver = new InternetExplorerDriver();
-        tlDriver.set(driver);
-        driver.register(new MyListener());
-        wait = new WebDriverWait(driver, 15);
+    public static class MyListener extends AbstractWebDriverEventListener {
+        @Override
+        public void beforeFindBy(By by, WebElement element, WebDriver driver) {
+            //System.out.println(by);
+        }
 
-        Runtime.getRuntime().addShutdownHook(
-                new Thread(() -> { driver.quit(); driver = null; }));
+        @Override
+        public void afterFindBy(By by, WebElement element, WebDriver driver) {
+            //System.out.println(by +  " found");
+        }
+
+        @Override
+        public void onException(Throwable throwable, WebDriver driver) {
+            //System.out.println(throwable);
+        }
+/*
+        public void beforeClickOn(WebElement element, WebDriver driver) {
+            System.out.println(element.getAttribute("value"));
+        }
+
+        public void afterClickOn(WebElement element, WebDriver driver) {
+            System.out.println(element.getAttribute("value") + " found");
+        }
+
+ */
     }
-
+    
     boolean isElementPresent(WebDriver driver, By locator) {
         try {
             driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
@@ -115,22 +106,17 @@ public class TestBase {
     }
 
     public List<WebElement> getElsByTwoStep(By locatorOne, By locatorTwo) {
-        WebElement elem = driver.findElement(locatorOne);
+        WebElement elem = app.driver.findElement(locatorOne);
         return elem.findElements(locatorTwo);
     }
 
     public List<WebElement> getElsByThreeStep(By locatorOne, By locatorTwo, By locatorThree) {
-        WebElement elem2 = driver.findElement(locatorOne);
+        WebElement elem2 = app.driver.findElement(locatorOne);
         WebElement elemInElem = elem2.findElement(locatorTwo);
         return elemInElem.findElements(locatorThree);
     }
 
-    public void mainPage() {
-        if (areElementsPresent(driver, By.id("slider"))) {
-            return;
-        }
-        driver.get("http://localhost/litecart/en/");
-    }
+
 
     public boolean isStringExist(String string, String target) {
         if (string.contains(target)) {
@@ -171,17 +157,17 @@ public class TestBase {
         return random;
     }
 
-    protected void click(By locator) {
-        driver.findElement(locator).click();
+    protected void click(By locator) {//здесь оставлено, чтобы не переписывать другие методы
+        app.driver.findElement(locator).click();
     }
 
     protected void type(By locator, String text) {
         click(locator);
         if (text != null){
-            String existingText = driver.findElement(locator).getAttribute("value");
+            String existingText = app.driver.findElement(locator).getAttribute("value");
             if (! text.equals(existingText)) {
-                driver.findElement(locator).clear();
-                driver.findElement(locator).sendKeys(text);
+                app.driver.findElement(locator).clear();
+                app.driver.findElement(locator).sendKeys(text);
             }
         }
     }
@@ -208,16 +194,13 @@ public class TestBase {
 
     public void selectItemByTwoSteps(By locatorOne, By LocatorTwo, String select) {
         click(locatorOne);
-        List<WebElement> itemsList = driver.findElements(LocatorTwo);
+        List<WebElement> itemsList = app.driver.findElements(LocatorTwo);
         for (WebElement item : itemsList) {
             item.findElement(By.xpath("./li[contains(text(),'" + select +"')]")).click();
         }
     }
 
-    public void logout() {
-        pause();
-        click(By.linkText("Logout"));
-    }
+
 
     /*public void makeVisible(WebElement item) {
         String s = item.getAttribute("outerHTML");
@@ -259,7 +242,7 @@ public class TestBase {
 
     public void attach (By locator, File file) {
         if (file != null){
-            driver.findElement(locator).sendKeys(file.getAbsolutePath());
+            app.driver.findElement(locator).sendKeys(file.getAbsolutePath());
         }
     }
 
@@ -285,58 +268,16 @@ public class TestBase {
     }
 
     public boolean isProductExist() {
-        return isElementPresent(driver, By.linkText("Gold Duck" + random));
+        return isElementPresent(app.driver, By.linkText("Gold Duck" + random));
     }
 
-    public void pause() {
+    public void pause() {//здесь оставлено, чтобы не переписывать другие методы
         try {
             Thread.sleep(2*1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
-
-    public void addFirstProductFromList(By locator) {
-        List<WebElement> elems = getElsByTwoStep(By.cssSelector("div.middle > div.content"), locator);
-        elems.get(0).findElement(By.cssSelector("li:first-child")).click();
-        List<WebElement> elQuantity = getElsByTwoStep(By.id("cart"), By.cssSelector("span[class=\"quantity\"]"));
-        String quantity = elQuantity.get(0).getAttribute("textContent");
-        if (isElementPresent(driver, By.cssSelector("select[name=\"options[Size]\"]"))) {
-            click(By.cssSelector("select[name=\"options[Size]\"]"));
-            click(By.cssSelector("option[value=\"Small\"]"));
-        }
-        click(By.cssSelector("button[name='add_cart_product']"));
-        wait.until(ExpectedConditions.attributeToBe(elQuantity.get(0), "textContent", strPlusInt(quantity, 1) ));
-        elQuantity = getElsByTwoStep(By.id("cart"), By.cssSelector("span[class=\"quantity\"]"));
-        String quantityAfter = elQuantity.get(0).getAttribute("textContent");
-        Assert.assertTrue(Integer.parseInt(quantityAfter) > Integer.parseInt(quantity));
-    }
-
-    public void removeProductFromCart() {
-        List<WebElement> shortcuts = getElsByTwoStep(By.id("box-checkout-cart"), By.className("shortcut"));
-        for (WebElement el : shortcuts) {
-            WebElement summary = driver.findElement(By.id("box-checkout-summary"));
-            List<WebElement> shortcutsCurrent = getElsByTwoStep(By.id("box-checkout-cart"), By.className("shortcut"));
-            if (shortcutsCurrent.size() > 0) {
-                shortcutsCurrent.get(0).click();
-            }
-            click(By.cssSelector("button[name=\"remove_cart_item\"]"));
-            wait.until(ExpectedConditions.stalenessOf(summary));
-        }
-    }
-
-    public String strPlusInt(String one, int two) {
-        int o = Integer.parseInt(one);
-        int r = o + two;
-        String result = Integer.toString(r);
-        return result;
-    }
-
-    public void checkout() {
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.linkText("Checkout »")));
-        click(By.linkText("Checkout »"));
-    }
-
     public ExpectedCondition<String> anyWindowOtherThan(Set<String> oldWindows) {
         return new ExpectedCondition<String>() {
             public String apply(WebDriver driver) {
@@ -349,7 +290,7 @@ public class TestBase {
 
     public List browserLogs() {
         List log = new ArrayList();
-        for (LogEntry l : driver.manage().logs().get("browser").getAll()) {
+        for (LogEntry l : app.driver.manage().logs().get("browser").getAll()) {
             log.add("[" + l.getTimestamp() + "] [" + l.getLevel() + "] " + l.getMessage());
         }
         return log;
