@@ -13,28 +13,23 @@ public class ProductPage extends Page {
         super(driver);
     }
 
+    public List<WebElement> sizeField() {
+        return driver.findElements(By.cssSelector("select[name=\"options[Size]\"]"));
+    }
+
     public WebElement addToCartButton() {
         return driver.findElement(By.cssSelector("button[name='add_cart_product']"));
     }
-    public void addOneToCart() {
-        List<WebElement> elQuantity = getElsByTwoStep(By.id("cart"), By.cssSelector("span[class=\"quantity\"]"));
-        String quantity = elQuantity.get(0).getAttribute("textContent");
-        if (isElementPresent(driver, By.cssSelector("select[name=\"options[Size]\"]"))) {
-            click(By.cssSelector("select[name=\"options[Size]\"]"));
-            click(By.cssSelector("option[value=\"Small\"]"));
+    public void addToCart(String size) {
+        if(sizeField().size() > 0) {
+            selectProductSize(size);
         }
-        click(By.cssSelector("button[name='add_cart_product']"));
-        wait.until(ExpectedConditions.attributeToBe(elQuantity.get(0), "textContent", strPlusInt(quantity, 1)));
-        elQuantity = getElsByTwoStep(By.id("cart"), By.cssSelector("span[class=\"quantity\"]"));
-        String quantityAfter = elQuantity.get(0).getAttribute("textContent");
-        Assert.assertTrue(Integer.parseInt(quantityAfter) > Integer.parseInt(quantity));
+       addToCartButton().click();
     }
 
     public void selectProductSize(String size) {
-        if (driver.findElements(By.cssSelector("select[name=\"options[Size]\"]")).size() > 0) {
-            click(By.cssSelector("select[name=\"options[Size]\"]"));
-            click(By.cssSelector("option[value=" + size + "]"));
-        }
+        sizeField().get(0).click();
+        click(By.cssSelector("option[value=" + size + "]"));
     }
 
 }

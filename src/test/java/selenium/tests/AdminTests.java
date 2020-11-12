@@ -1,24 +1,20 @@
-package selenium;
+package selenium.tests;
 
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.logging.LogEntry;
-import org.openqa.selenium.support.ui.ExpectedCondition;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Level;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 
 public class AdminTests extends TestBase {
-
+/*
     @Test
     public void adminLoginTest() {
         driver.get("http://localhost/litecart/admin/.");
@@ -138,7 +134,7 @@ public class AdminTests extends TestBase {
         Но в этом упражнении требуется именно кликнуть по ссылке,
         чтобы она открылась в новом окне, потом переключиться в новое окно,
         закрыть его, вернуться обратно, и повторить эти действия для всех таких ссылок.*/
-        adminLoginTest();
+        /*adminLoginTest();
         driver.get("http://localhost/litecart/admin/?app=countries&doc=countries");
         click(By.cssSelector("a[title=\"Edit\"]"));
         List<WebElement> external = driver.findElements(By.xpath("//a[.//i[@class='fa fa-external-link']]"));
@@ -166,11 +162,11 @@ public class AdminTests extends TestBase {
             //wait.until(ExpectedConditions.elementToBeClickable(btnCancel));
             /*wait.until(ExpectedConditions.attributeToBeNotEmpty(btnCancel,
                     btnCancel.getAttribute("onclick")));*/
-            btnCancel.click();
+            /*btnCancel.click();
             assertThat(browserLogs().size(), is(0));
         }
         /*for (LogEntry l : driver.manage().logs().get("browser").filter(Level.INFO)) {
             System.out.println("[" + l.getTimestamp() + "] [" + l.getLevel() + "] " + l.getMessage());
-        }*/
-    }
+        }
+    }*/
 }

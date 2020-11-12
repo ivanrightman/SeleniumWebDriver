@@ -8,32 +8,33 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import java.util.List;
 
 public class CartPage extends Page {
+
     public CartPage(EventFiringWebDriver driver) {
         super(driver);
     }
 
-    public String quantityInCart() {
-        List<WebElement> elQuantity = getElsByTwoStep(By.id("cart"), By.cssSelector("span[class=\"quantity\"]"));
-        String quantity = elQuantity.get(0).getAttribute("textContent");
-        return quantity;
+
+    public List<WebElement> shortcuts() {
+        return getElsByTwoStep(By.id("box-checkout-cart"), By.className("shortcut"));
+    }
+    public WebElement summary() {
+        return driver.findElement(By.id("box-checkout-summary"));
+    }
+    public WebElement removeButton() {
+        return driver.findElement(By.cssSelector("button[name=\"remove_cart_item\"]"));
     }
 
-
     public void removeProductFromCart() {
-        List<WebElement> shortcuts = getElsByTwoStep(By.id("box-checkout-cart"), By.className("shortcut"));
-        for (WebElement el : shortcuts) {
-            WebElement summary = driver.findElement(By.id("box-checkout-summary"));
-            List<WebElement> shortcutsCurrent = getElsByTwoStep(By.id("box-checkout-cart"), By.className("shortcut"));
+        for (WebElement el : shortcuts()) {
+            summary();
+            List<WebElement> shortcutsCurrent = shortcuts();
             if (shortcutsCurrent.size() > 0) {
                 shortcutsCurrent.get(0).click();
             }
-            click(By.cssSelector("button[name=\"remove_cart_item\"]"));
-            wait.until(ExpectedConditions.stalenessOf(summary));
+            removeButton().click();
+            wait.until(ExpectedConditions.stalenessOf(summary()));
         }
     }
 
-    public void checkout() {
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.linkText("Checkout »")));
-        click(By.linkText("Checkout »"));
-    }
+
 }

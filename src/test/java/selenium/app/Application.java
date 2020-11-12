@@ -1,48 +1,50 @@
 package selenium.app;
 
 import org.junit.Assert;
-import org.junit.Before;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.events.EventFiringWebDriver;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
-import selenium.TestBase;
+import selenium.model.Product;
+import selenium.page_blocks.Cart;
 import selenium.pages.CartPage;
 import selenium.pages.MainPage;
 import selenium.pages.ProductPage;
 
-import java.util.List;
-
-public class Application extends Helpers{
+public class Application {
     public EventFiringWebDriver driver;
     private MainPage mainPage;
     private ProductPage productPage;
     private CartPage cartPage;
+    private Cart cart;
 
-    @Before
-    public void start() {
+    public Application() {
         driver = new EventFiringWebDriver(new ChromeDriver());
         //driver = new FirefoxDriver();
         //driver = new InternetExplorerDriver();
         mainPage = new MainPage(driver);
         productPage = new ProductPage(driver);
         cartPage = new CartPage(driver);
+        cart = new Cart(driver);
     }
 
-    public void addOneProductToCart() {
+    public void addOneProductToCart(Product.Builder product) {
         mainPage.open();
-        cartPage.quantityInCart();
-        productPage.selectProductSize("Small");
-        productPage.addToCartButton();
-        wait.until(ExpectedConditions.attributeToBe(elQuantity.get(0), "textContent", strPlusInt(quantity, 1)));
-        elQuantity = getElsByTwoStep(By.id("cart"), By.cssSelector("span[class=\"quantity\"]"));
-        String quantityAfter = elQuantity.get(0).getAttribute("textContent");
-        Assert.assertTrue(Integer.parseInt(quantityAfter) > Integer.parseInt(quantity));
+        String quantityBefore = cart.quantityInCart();
+        mainPage.clickFirstProductFrom(product.getBlock());
+        productPage.addToCart(product.getSize());
+        cart.waitOneProductAdded();
+        String quantityAfter = cart.quantityInCart();
+        Assert.assertTrue(Integer.parseInt(quantityAfter) > Integer.parseInt(quantityBefore));
     }
 
-    public int getQuantity() {
+    public MainPage goToMainPage() {
+        return mainPage;
+    }
 
+    public CartPage doOnCartPage() {
+        return cartPage;
+    }
+
+    public Cart doInCart() {
+        return cart;
     }
 }

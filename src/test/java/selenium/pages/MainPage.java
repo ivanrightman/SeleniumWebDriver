@@ -1,16 +1,24 @@
 package selenium.pages;
 
-import org.junit.Assert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.events.EventFiringWebDriver;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 
 import java.util.List;
 
 public class MainPage extends Page{
     public MainPage(EventFiringWebDriver driver) {
         super(driver);
+    }
+
+    public List<WebElement> firstProdBlock() {
+        return driver.findElements(By.id("box-most-popular"));
+    }
+    public List<WebElement> secondProdBlock() {
+        return driver.findElements(By.id("box-campaigns"));
+    }
+    public List<WebElement> thirdProdBlock() {
+        return driver.findElements(By.id("box-latest-products"));
     }
 
     public void open() {
@@ -21,10 +29,25 @@ public class MainPage extends Page{
     }
 
 
-    public void clickFirstProductFromList(By locator) {
-        List<WebElement> elems = getElsByTwoStep(By.cssSelector("div.middle > div.content"), locator);
+    public void clickFirstProductFrom(String block) {
+        if (block.equals("Most Popular")) {
+            List<WebElement> elems = firstProdBlock();
+            getFirst(elems);
+        } else if (block.equals("Campaigns")) {
+            List<WebElement> elems = secondProdBlock();
+            getFirst(elems);
+        } else if (block.equals("Latest Products")) {
+            List<WebElement> elems = thirdProdBlock();
+            getFirst(elems);
+        }
+    }
+
+    public void getFirst(List<WebElement> elems) {
         elems.get(0).findElement(By.cssSelector("li:first-child")).click();
-        addOneToCart();
+    }
+
+    public List<WebElement> getWebElements(WebElement webElement) {
+        return webElement.findElements(By.className("product"));
     }
 
 

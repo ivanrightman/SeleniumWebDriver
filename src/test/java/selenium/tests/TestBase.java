@@ -1,14 +1,12 @@
-package selenium;
+package selenium.tests;
 
 import org.junit.After;
 import org.junit.Before;
 import org.openqa.selenium.*;
-import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.logging.LogEntry;
 import org.openqa.selenium.support.events.AbstractWebDriverEventListener;
 import org.openqa.selenium.support.events.EventFiringWebDriver;
 import org.openqa.selenium.support.ui.ExpectedCondition;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import selenium.app.Application;
 
 import java.io.File;
@@ -19,22 +17,22 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public class TestBase {
-    public static ThreadLocal<EventFiringWebDriver> tlApp = new ThreadLocal<>();
+    public static ThreadLocal<Application> tlApp = new ThreadLocal<>();
     public Application app;
-
-
     private String random;
 
     @Before
     public void start() {
-
-        tlApp.set(app.driver);
-        app.driver.register(new TestBase.MyListener());
-
+        if (tlApp.get() != null) {
+            app = tlApp.get();
+            return;
+        }
+        app = new Application();
+        tlApp.set(app);
 
         Runtime.getRuntime().addShutdownHook(
                 new Thread(() -> { app.driver.quit(); app.driver = null; }));
-    }
+
         /*
         //Задание 4. Научитесь запускать разные браузеры
         driver = new FirefoxDriver();
@@ -62,7 +60,7 @@ public class TestBase {
             wait = new WebDriverWait(driver, 10);
             return;
         } */
-
+    }
     public static class MyListener extends AbstractWebDriverEventListener {
         @Override
         public void beforeFindBy(By by, WebElement element, WebDriver driver) {
@@ -104,12 +102,12 @@ public class TestBase {
     boolean areElementsPresent(WebDriver driver, By locator) {
         return driver.findElements(locator).size() > 0;
     }
-
+    //здесь оставлено, чтобы не переписывать другие методы
     public List<WebElement> getElsByTwoStep(By locatorOne, By locatorTwo) {
         WebElement elem = app.driver.findElement(locatorOne);
         return elem.findElements(locatorTwo);
     }
-
+    //здесь оставлено, чтобы не переписывать другие методы
     public List<WebElement> getElsByThreeStep(By locatorOne, By locatorTwo, By locatorThree) {
         WebElement elem2 = app.driver.findElement(locatorOne);
         WebElement elemInElem = elem2.findElement(locatorTwo);

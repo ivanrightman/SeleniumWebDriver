@@ -1,15 +1,20 @@
-package selenium;
+package selenium.tests;
 
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
+import selenium.model.Product;
+
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-
+//@RunWith(DataProviderRunner.class)
 public class MainPageTests extends TestBase {
-
+/*
     @Test
     public void ifAllProductsHaveStickers() {
         mainPage();
@@ -81,15 +86,19 @@ public class MainPageTests extends TestBase {
         click(By.cssSelector("button[name='login']"));
         logout();
     }
-
+*/
     @Test
+    //@UseDataProvider(value = "products", location = DataProviders.class)
     public void productAddTest() {
+        Product.Builder product = Product.newEntity()
+                .withBlock("Most Popular")
+                .withQuantity(1)
+                .withSize("Small");
         for (int i = 0; i < 3; i++) {
-           app.mainPage().;
-           addFirstProductFromList(By.id("box-most-popular"));
+          app.addOneProductToCart(product);
         }
-        mainPage();
-        checkout();
-        removeProductFromCart();
+        app.goToMainPage().open();
+        app.doInCart().checkout();
+        app.doOnCartPage().removeProductFromCart();
     }
 }
